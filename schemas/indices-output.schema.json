@@ -1,0 +1,92 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "indices": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "doc_count": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "health": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pri_shards": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "rep_shards": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "store_size": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "health",
+          "status",
+          "doc_count",
+          "store_size",
+          "pri_shards",
+          "rep_shards"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "item_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "limit": {
+      "maximum": 500,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "metadata": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "next_cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_item_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "truncated": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "indices",
+    "item_count",
+    "source_item_count",
+    "limit",
+    "cursor",
+    "next_cursor",
+    "truncated",
+    "metadata"
+  ],
+  "type": "object"
+}

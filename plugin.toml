@@ -1,0 +1,177 @@
+id = "elasticsearch"
+name = "Elasticsearch Search and Analytics Plugin"
+version = "0.3.0"
+protocol_version = "1"
+description = "Elasticsearch cluster, index, and document capability plugin for VoidB."
+license = "Apache-2.0"
+homepage = "https://github.com/limmytian/voidb-plugin-elasticsearch"
+
+[runtime]
+command = "voidb-plugin-elasticsearch"
+args = ["serve"]
+transport = "stdio-jsonrpc"
+
+[connections]
+profile_schema = "schemas/profile.schema.json"
+secret_classes = ["password", "api_key", "token"]
+
+[[capabilities]]
+id = "diagnostics"
+description = "Return agent-safe Elasticsearch profile diagnostics without opening a cluster connection."
+input_schema = "schemas/diagnostics-input.schema.json"
+output_schema = "schemas/diagnostics-output.schema.json"
+permissions = ["connection.read", "elasticsearch.diagnostics"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "health"
+description = "Read Elasticsearch cluster health."
+input_schema = "schemas/health-input.schema.json"
+output_schema = "schemas/health-output.schema.json"
+permissions = ["connection.read", "elasticsearch.cluster.health"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "nodes"
+description = "List Elasticsearch cluster nodes with bounded output."
+input_schema = "schemas/nodes-input.schema.json"
+output_schema = "schemas/nodes-output.schema.json"
+permissions = ["connection.read", "elasticsearch.nodes.list"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "indices"
+description = "List Elasticsearch indices with bounded output."
+input_schema = "schemas/indices-input.schema.json"
+output_schema = "schemas/indices-output.schema.json"
+permissions = ["connection.read", "elasticsearch.indices.list"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "search"
+description = "Search one Elasticsearch index with bounded, cursor-based output."
+input_schema = "schemas/search-input.schema.json"
+output_schema = "schemas/search-output.schema.json"
+permissions = ["connection.read", "elasticsearch.documents.search"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "search_stream_read"
+description = "Read Elasticsearch search hits through a bounded PIT or scroll session."
+input_schema = "schemas/search_stream_read-input.schema.json"
+output_schema = "schemas/search_stream_read-output.schema.json"
+permissions = ["connection.read", "elasticsearch.documents.search"]
+risk = "read_only"
+destructive = false
+streaming = true
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "get"
+description = "Get one Elasticsearch document by ID."
+input_schema = "schemas/get-input.schema.json"
+output_schema = "schemas/get-output.schema.json"
+permissions = ["connection.read", "elasticsearch.documents.get"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "count"
+description = "Count documents in one Elasticsearch index."
+input_schema = "schemas/count-input.schema.json"
+output_schema = "schemas/count-output.schema.json"
+permissions = ["connection.read", "elasticsearch.documents.count"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "mapping"
+description = "Read index mapping metadata without returning the raw mapping body."
+input_schema = "schemas/mapping-input.schema.json"
+output_schema = "schemas/mapping-output.schema.json"
+permissions = ["connection.read", "elasticsearch.mappings.get"]
+risk = "read_only"
+destructive = false
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = false
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "bulk"
+description = "Execute a bounded Elasticsearch bulk request with item-level failure reporting."
+input_schema = "schemas/bulk-input.schema.json"
+output_schema = "schemas/bulk-output.schema.json"
+permissions = ["connection.write", "elasticsearch.documents.bulk"]
+risk = "destructive"
+destructive = true
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = true
+default_timeout_ms = 30000
+
+[[capabilities]]
+id = "raw_api"
+description = "Run a raw Elasticsearch API call; all raw API calls are destructive-gated."
+input_schema = "schemas/raw_api-input.schema.json"
+output_schema = "schemas/raw_api-output.schema.json"
+permissions = ["connection.write", "elasticsearch.raw_api"]
+risk = "destructive"
+destructive = true
+streaming = false
+connection_required = true
+required_secret_classes = []
+supports_dry_run = true
+default_timeout_ms = 30000
+
+[ui]
+tui = false
+
+[requirements]
+voidb_core = ">=0.1.0"
+platforms = ["darwin", "linux", "windows"]

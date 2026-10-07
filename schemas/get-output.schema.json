@@ -1,0 +1,22 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "index": {
+      "type": "string"
+    },
+    "source": {},
+    "source_summary": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "index",
+    "id",
+    "source",
+    "source_summary"
+  ],
+  "type": "object"
+}

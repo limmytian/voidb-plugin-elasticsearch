@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "index": {
+      "type": "string"
+    },
+    "properties": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "property_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "raw_omitted": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "index",
+    "properties",
+    "property_count",
+    "raw_omitted"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,71 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "columns": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hit_summaries": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "hits": {
+      "items": {
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "index": {
+      "type": "string"
+    },
+    "item_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "limit": {
+      "maximum": 500,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "next_cursor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "query_summary": {
+      "type": "object"
+    },
+    "total": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "truncated": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "index",
+    "hits",
+    "hit_summaries",
+    "total",
+    "item_count",
+    "limit",
+    "cursor",
+    "next_cursor",
+    "truncated",
+    "query_summary",
+    "columns"
+  ],
+  "type": "object"
+}

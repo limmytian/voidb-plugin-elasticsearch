@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "active_shards": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "cluster_name": {
+      "type": "string"
+    },
+    "node_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "status": {
+      "type": "string"
+    },
+    "unassigned_shards": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "cluster_name",
+    "status",
+    "node_count",
+    "active_shards",
+    "unassigned_shards"
+  ],
+  "type": "object"
+}

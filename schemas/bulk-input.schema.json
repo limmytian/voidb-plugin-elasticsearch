@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "index": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "operations": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "document": {},
+          "id": {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "index",
+              "create",
+              "update",
+              "delete"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": [
+    "index",
+    "operations"
+  ],
+  "type": "object"
+}

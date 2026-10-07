@@ -1,0 +1,10 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "include_system": {
+      "default": false,
+      "type": "boolean"
+    }
+  },
+  "type": "object"
+}

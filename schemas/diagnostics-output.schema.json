@@ -1,0 +1,40 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "auth_type": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "network_checked": {
+      "type": "boolean"
+    },
+    "primary_url_scheme": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeout_secs": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "url_count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "verify_ssl": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "url_count",
+    "primary_url_scheme",
+    "auth_type",
+    "timeout_secs",
+    "verify_ssl",
+    "network_checked"
+  ],
+  "type": "object"
+}

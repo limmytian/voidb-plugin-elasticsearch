@@ -1,0 +1,17 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "index": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "query": {
+      "additionalProperties": true,
+      "type": "object"
+    }
+  },
+  "required": [
+    "index"
+  ],
+  "type": "object"
+}

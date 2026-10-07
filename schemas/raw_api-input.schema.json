@@ -1,0 +1,28 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "body": {},
+    "method": {
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "get",
+        "post",
+        "put",
+        "delete"
+      ],
+      "type": "string"
+    },
+    "path": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "method",
+    "path"
+  ],
+  "type": "object"
+}

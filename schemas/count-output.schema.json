@@ -1,0 +1,21 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "count": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "index": {
+      "type": "string"
+    },
+    "query_summary": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "index",
+    "count",
+    "query_summary"
+  ],
+  "type": "object"
+}

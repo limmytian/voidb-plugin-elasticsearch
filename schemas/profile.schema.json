@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "auth": {
+      "properties": {
+        "api_key": {
+          "description": "API Key secret",
+          "type": "string"
+        },
+        "id": {
+          "description": "API Key ID",
+          "type": "string"
+        },
+        "password": {
+          "description": "Password for Basic auth",
+          "type": "string"
+        },
+        "token": {
+          "description": "Bearer token",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "Basic",
+            "ApiKey",
+            "Bearer"
+          ],
+          "type": "string"
+        },
+        "username": {
+          "description": "Username for Basic auth",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "timeout": {
+      "default": 30,
+      "description": "Request timeout in seconds",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "urls": {
+      "description": "Elasticsearch cluster URL(s), e.g. [\"http://localhost:9200\"]",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "verify_ssl": {
+      "default": true,
+      "description": "Whether to verify TLS certificates",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "urls"
+  ],
+  "title": "ElasticsearchConnectionProfile",
+  "type": "object"
+}
