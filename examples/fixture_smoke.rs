@@ -4,6 +4,8 @@
 //! capability surface against a disposable local Elasticsearch fixture using
 //! only the generated index and documents from the fixture environment.
 
+#![allow(clippy::result_large_err)]
+
 use anyhow::{Context, Result, bail, ensure};
 use chrono::Utc;
 use serde_json::{Value, json};
