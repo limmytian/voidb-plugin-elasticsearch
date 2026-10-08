@@ -1,4 +1,4 @@
-# VoidB Elasticsearch Plugin
+# VoidB Elasticsearch Plugin (`voidb-plugin-elasticsearch`)
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
@@ -8,21 +8,78 @@ External process plugin for [VoidB](https://github.com/limmytian/voidb), providi
 
 This plugin runs as an autonomous, out-of-process plugin adhering to VoidB's `process-plugin-sdk` stdio-jsonrpc protocol.
 
-### Capabilities Exposed
+## Features
 
-- `diagnostics`: Agent-safe profile diagnostics without opening live cluster connections.
-- `health`: Cluster health inspection.
-- `nodes`: Bounded cluster node listing.
-- `indices`: Index catalog inspection.
-- `search`: Query DSL search execution with pagination/cursor support.
-- `search_stream_read`: Bounded PIT / scroll streaming session consumer.
-- `get`: Document retrieval by ID.
-- `count`: Document count matching query filters.
-- `mapping`: Schema and field mapping inspection.
-- `bulk`: Destructive bulk document indexing, deletion, and updates.
-- `raw_api`: Direct REST API passthrough with safety and confirmation gating.
+- **Autonomous Process Architecture**: Runs in an isolated OS process communicating with VoidB via `stdio-jsonrpc`.
+- **Tri-Modal Operation**:
+  - `test`: Automated connectivity verification.
+  - `serve`: `stdio-jsonrpc` protocol server for AI Agents and automated orchestration.
+  - Domain commands: Rich cluster health, node inspection, index catalog, search DSL, and document management.
+- **Capabilities Exposed**:
+  - `diagnostics`: Agent-safe profile diagnostics without opening live cluster connections.
+  - `health`: Cluster health inspection.
+  - `nodes`: Bounded cluster node listing.
+  - `indices`: Index catalog inspection.
+  - `search`: Query DSL search execution with pagination/cursor support.
+  - `search_stream_read`: Bounded PIT / scroll streaming session consumer.
+  - `get`: Document retrieval by ID.
+  - `count`: Document count matching query filters.
+  - `mapping`: Schema and field mapping inspection.
+  - `bulk`: Destructive bulk document indexing, deletion, and updates.
+  - `raw_api`: Direct REST API passthrough with safety and confirmation gating.
 
-## Building and Installing
+## Usage & Operational Modes
+
+When installed, `voidb-cli` automatically discovers this plugin and provides seamless transparent dispatch:
+
+### 1. Human Operations (CLI)
+
+```bash
+# Connectivity test
+voidb-cli elasticsearch test --profile local-es
+
+# Cluster health and nodes
+voidb-cli elasticsearch health --profile local-es
+voidb-cli elasticsearch nodes --profile local-es
+
+# Indices and mappings
+voidb-cli elasticsearch indices --profile local-es
+voidb-cli elasticsearch mapping my-index --profile local-es
+
+# Search and documents
+voidb-cli elasticsearch search my-index --query '{"match_all":{}}' --size 10 --profile local-es
+voidb-cli elasticsearch get my-index doc-123 --profile local-es
+voidb-cli elasticsearch count my-index --query '{"match_all":{}}' --profile local-es
+```
+
+### 2. Machine Communication (AI Agents & JSON-RPC)
+
+```bash
+# Run the stdio-jsonrpc server directly or via voidb-cli
+voidb-cli elasticsearch serve
+# Or directly run the binary:
+./bin/voidb-plugin-elasticsearch serve
+```
+
+## Quick Start
+
+### Installation
+
+Place this plugin directory or a packaged release archive under your VoidB plugins directory (`~/Library/Application Support/voidb/plugins/elasticsearch` on macOS, or `~/.local/share/voidb/plugins/elasticsearch` on Linux):
+
+```bash
+mkdir -p "$HOME/Library/Application Support/voidb/plugins/elasticsearch"
+cp -r plugin.toml bin schemas "$HOME/Library/Application Support/voidb/plugins/elasticsearch/"
+```
+
+Verify discovery via `voidb`:
+
+```bash
+voidb-cli plugin list
+voidb-cli elasticsearch --help
+```
+
+### Development & Build
 
 ```bash
 cargo build --release
@@ -30,17 +87,9 @@ mkdir -p bin
 cp target/release/voidb-plugin-elasticsearch bin/
 ```
 
-Then point VoidB to this directory via:
-```bash
-export VOIDB_PLUGIN_PATH=/path/to/voidb-plugin-elasticsearch
-```
+## Protocol Specifications
 
-## Running Standalone
-
-```bash
-# Run the stdio-jsonrpc RPC server
-./bin/voidb-plugin-elasticsearch serve
-```
+Complies with the [VoidB Process Plugin Protocol](https://github.com/limmytian/voidb/blob/main/docs/quickstart-process-plugin.md) specification (v1.0).
 
 ## License
 
