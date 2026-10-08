@@ -120,7 +120,7 @@ impl CliPlugin for EsCliPlugin {
                 ),
             Command::new("api")
                 .about("Execute a raw API call")
-                .arg(conn_arg)
+                .arg(conn_arg.clone())
                 .arg(
                     Arg::new("method")
                         .short('X')
@@ -139,6 +139,9 @@ impl CliPlugin for EsCliPlugin {
                         .long("data")
                         .help("JSON request body"),
                 ),
+            Command::new("test")
+                .about("Test Elasticsearch connection and show cluster info")
+                .arg(conn_arg.clone()),
         ]
     }
 
@@ -149,6 +152,7 @@ impl CliPlugin for EsCliPlugin {
         ctx: &CliContext,
     ) -> Result<(), VoidbError> {
         match command {
+            "test" => self.handle_test(matches, ctx).await,
             "health" => self.handle_health(matches, ctx).await,
             "nodes" => self.handle_nodes(matches, ctx).await,
             "indices" => self.handle_indices(matches, ctx).await,
@@ -163,6 +167,18 @@ impl CliPlugin for EsCliPlugin {
 }
 
 impl EsCliPlugin {
+    async fn handle_test(&self, matches: &ArgMatches, ctx: &CliContext) -> Result<(), VoidbError> {
+        let conn_name = matches.get_one::<String>("connection").unwrap();
+        let conn = ctx
+            .find_connection(conn_name)
+            .ok_or_else(|| VoidbError::Plugin(format!("Connection '{}' not found", conn_name)))?;
+        let msg = crate::test_connection(conn)
+            .await
+            .map_err(|e| VoidbError::Connection(e.to_string()))?;
+        println!("{msg}");
+        Ok(())
+    }
+
     /// Parse the ES config from the named connection in the CLI context.
     fn parse_config(conn_name: &str, ctx: &CliContext) -> Result<EsConfig, VoidbError> {
         let config = ctx
