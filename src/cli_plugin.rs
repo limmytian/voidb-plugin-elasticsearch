@@ -141,7 +141,13 @@ impl CliPlugin for EsCliPlugin {
                 ),
             Command::new("test")
                 .about("Test Elasticsearch connection and show cluster info")
-                .arg(conn_arg.clone()),
+                .arg(conn_arg.clone().required(false))
+                .arg(
+                    Arg::new("stdin-config")
+                        .long("stdin-config")
+                        .action(clap::ArgAction::SetTrue)
+                        .help("Read connection configuration JSON from stdin"),
+                ),
         ]
     }
 
@@ -168,11 +174,34 @@ impl CliPlugin for EsCliPlugin {
 
 impl EsCliPlugin {
     async fn handle_test(&self, matches: &ArgMatches, ctx: &CliContext) -> Result<(), VoidbError> {
-        let conn_name = matches.get_one::<String>("connection").unwrap();
-        let conn = ctx
-            .find_connection(conn_name)
-            .ok_or_else(|| VoidbError::Plugin(format!("Connection '{}' not found", conn_name)))?;
-        let msg = crate::test_connection(conn)
+        let conn = if matches.get_flag("stdin-config") {
+            use std::io::Read;
+            let mut input = String::new();
+            std::io::stdin()
+                .read_to_string(&mut input)
+                .map_err(|e| VoidbError::Config(format!("Failed to read stdin: {}", e)))?;
+            let conn: voidb_core::connection::ConnectionConfig = serde_json::from_str(&input)
+                .map_err(|e| VoidbError::Config(format!("Invalid JSON on stdin: {}", e)))?;
+            conn
+        } else if let Some(conn_name) = matches.get_one::<String>("connection") {
+            if let Some(config) = ctx.find_connection(conn_name) {
+                config.clone()
+            } else if let Ok((_profile, config)) =
+                ctx.resolve_profile_connection(conn_name, Some("elasticsearch"))
+            {
+                config
+            } else {
+                return Err(VoidbError::Plugin(format!(
+                    "Connection or profile '{}' not found",
+                    conn_name
+                )));
+            }
+        } else {
+            return Err(VoidbError::Plugin(
+                "Either --connection or --stdin-config is required".into(),
+            ));
+        };
+        let msg = crate::test_connection(&conn)
             .await
             .map_err(|e| VoidbError::Connection(e.to_string()))?;
         println!("{msg}");
@@ -181,9 +210,18 @@ impl EsCliPlugin {
 
     /// Parse the ES config from the named connection in the CLI context.
     fn parse_config(conn_name: &str, ctx: &CliContext) -> Result<EsConfig, VoidbError> {
-        let config = ctx
-            .find_connection(conn_name)
-            .ok_or_else(|| VoidbError::Plugin(format!("Connection '{}' not found", conn_name)))?;
+        let config = if let Some(config) = ctx.find_connection(conn_name) {
+            config.clone()
+        } else if let Ok((_profile, config)) =
+            ctx.resolve_profile_connection(conn_name, Some("elasticsearch"))
+        {
+            config
+        } else {
+            return Err(VoidbError::Plugin(format!(
+                "Connection or profile '{}' not found",
+                conn_name
+            )));
+        };
 
         if config.effective_plugin_id() != "elasticsearch" {
             return Err(VoidbError::Plugin(format!(
