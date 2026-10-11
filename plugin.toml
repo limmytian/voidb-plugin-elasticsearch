@@ -11,167 +11,525 @@ command = "voidb-plugin-elasticsearch"
 args = ["serve"]
 transport = "stdio-jsonrpc"
 
+[runtime.env]
+
 [connections]
 profile_schema = "schemas/profile.schema.json"
-secret_classes = ["password", "api_key", "token"]
+secret_classes = [
+    "password",
+    "api_key",
+    "token",
+]
 
 [[capabilities]]
 id = "diagnostics"
 description = "Return agent-safe Elasticsearch profile diagnostics without opening a cluster connection."
 input_schema = "schemas/diagnostics-input.schema.json"
 output_schema = "schemas/diagnostics-output.schema.json"
-permissions = ["connection.read", "elasticsearch.diagnostics"]
+permissions = [
+    "connection.read",
+    "elasticsearch.diagnostics",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+capability_wide_allowed = true
 
 [[capabilities]]
 id = "health"
 description = "Read Elasticsearch cluster health."
 input_schema = "schemas/health-input.schema.json"
 output_schema = "schemas/health-output.schema.json"
-permissions = ["connection.read", "elasticsearch.cluster.health"]
+permissions = [
+    "connection.read",
+    "elasticsearch.cluster.health",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+capability_wide_allowed = true
 
 [[capabilities]]
 id = "nodes"
 description = "List Elasticsearch cluster nodes with bounded output."
 input_schema = "schemas/nodes-input.schema.json"
 output_schema = "schemas/nodes-output.schema.json"
-permissions = ["connection.read", "elasticsearch.nodes.list"]
+permissions = [
+    "connection.read",
+    "elasticsearch.nodes.list",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+capability_wide_allowed = true
 
 [[capabilities]]
 id = "indices"
 description = "List Elasticsearch indices with bounded output."
 input_schema = "schemas/indices-input.schema.json"
 output_schema = "schemas/indices-output.schema.json"
-permissions = ["connection.read", "elasticsearch.indices.list"]
+permissions = [
+    "connection.read",
+    "elasticsearch.indices.list",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+capability_wide_allowed = true
 
 [[capabilities]]
 id = "search"
 description = "Search one Elasticsearch index with bounded, cursor-based output."
 input_schema = "schemas/search-input.schema.json"
 output_schema = "schemas/search-output.schema.json"
-permissions = ["connection.read", "elasticsearch.documents.search"]
+permissions = [
+    "connection.read",
+    "elasticsearch.documents.search",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Index and document constraints are revalidated before execution."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "normal"
 
 [[capabilities]]
 id = "search_stream_read"
 description = "Read Elasticsearch search hits through a bounded PIT or scroll session."
 input_schema = "schemas/search_stream_read-input.schema.json"
 output_schema = "schemas/search_stream_read-output.schema.json"
-permissions = ["connection.read", "elasticsearch.documents.search"]
+permissions = [
+    "connection.read",
+    "elasticsearch.documents.search",
+]
 risk = "read_only"
 destructive = false
 streaming = true
+execution_mode = "session_only"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+note = "PIT and scroll handles stay plugin-owned; only scoped, expiring PIT search-after tokens are agent-visible."
+capability_wide_allowed = true
+
+[[capabilities.authorization.session_purposes]]
+kind = "database_query"
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/resource/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "normal"
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/parameters/query"
+label = "Search query"
+value_type = "json"
+required = false
+constraint = "subset"
+risk_emphasis = "normal"
+
+[capabilities.session_handoff]
+capabilities = ["elasticsearch.search_stream_read"]
+
+[capabilities.session_handoff.purpose]
+kind = "database_query"
+
+[capabilities.session_handoff.live_session]
+protocol_version = 1
+start_risk = "read_only"
+
+[capabilities.session_handoff.live_session.kind]
+kind = "cursor"
+
+[capabilities.session_handoff.live_session.resource]
+resource_type = "elasticsearch_index_search"
+identity_fields = ["/index"]
+audit_identity = "fingerprint"
+
+[capabilities.session_handoff.live_session.resource.identity_schema]
+additionalProperties = false
+required = ["index"]
+type = "object"
+
+[capabilities.session_handoff.live_session.resource.identity_schema.properties.index]
+maxLength = 255
+minLength = 1
+type = "string"
+
+[capabilities.session_handoff.live_session.start_parameters_schema]
+additionalProperties = false
+type = "object"
+
+[capabilities.session_handoff.live_session.start_parameters_schema.properties.batch_size]
+default = 100
+maximum = 500
+minimum = 1
+type = "integer"
+
+[capabilities.session_handoff.live_session.start_parameters_schema.properties.keep_alive_ms]
+default = 60000
+maximum = 300000
+minimum = 1000
+type = "integer"
+
+[capabilities.session_handoff.live_session.start_parameters_schema.properties.mode]
+default = "pit"
+enum = [
+    "pit",
+    "scroll",
+]
+type = "string"
+
+[capabilities.session_handoff.live_session.start_parameters_schema.properties.query]
+additionalProperties = true
+type = "object"
+
+[capabilities.session_handoff.live_session.start_parameters_schema.properties.sort]
+maxItems = 16
+minItems = 1
+type = "array"
+
+[capabilities.session_handoff.live_session.event_schema]
+additionalProperties = false
+required = ["event_type"]
+type = "object"
+
+[capabilities.session_handoff.live_session.event_schema.properties.event_type]
+enum = [
+    "hit",
+    "partial_shard_failure",
+]
+type = "string"
+
+[capabilities.session_handoff.live_session.event_schema.properties.failed_shards]
+minimum = 1
+type = "integer"
+
+[capabilities.session_handoff.live_session.event_schema.properties.failures]
+maxItems = 16
+type = "array"
+
+[capabilities.session_handoff.live_session.event_schema.properties.id]
+type = "string"
+
+[capabilities.session_handoff.live_session.event_schema.properties.index]
+type = "string"
+
+[capabilities.session_handoff.live_session.event_schema.properties.source]
+
+[capabilities.session_handoff.live_session.event_schema.properties.source_omitted]
+type = "boolean"
+
+[capabilities.session_handoff.live_session.operations]
+events = "elasticsearch.search_stream_read"
+
+[capabilities.session_handoff.live_session.buffer]
+max_events = 501
+max_bytes = 2097152
+overflow = "drop_oldest"
+
+[capabilities.session_handoff.live_session.reconnect]
+mode = "transient"
+max_attempts = 3
+initial_backoff_ms = 250
+max_backoff_ms = 2000
+resume = "best_effort_cursor"
+cursor_kind = "opaque"
+
+[capabilities.session_handoff.live_session.delivery]
+backpressure = "source_paced"
+cursor_scope = "required"
+max_read_wait_ms = 30000
+
+[capabilities.session_handoff.live_session.delivery.heartbeat]
+
+[capabilities.session_handoff.live_session.control]
+cancel = "call_and_source"
+close = "stop_observation"
 
 [[capabilities]]
 id = "get"
 description = "Get one Elasticsearch document by ID."
 input_schema = "schemas/get-input.schema.json"
 output_schema = "schemas/get-output.schema.json"
-permissions = ["connection.read", "elasticsearch.documents.get"]
+permissions = [
+    "connection.read",
+    "elasticsearch.documents.get",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Index and document constraints are revalidated before execution."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "normal"
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/id"
+label = "Document ID"
+value_type = "resource_id"
+required = true
+constraint = "exact"
+risk_emphasis = "normal"
 
 [[capabilities]]
 id = "count"
 description = "Count documents in one Elasticsearch index."
 input_schema = "schemas/count-input.schema.json"
 output_schema = "schemas/count-output.schema.json"
-permissions = ["connection.read", "elasticsearch.documents.count"]
+permissions = [
+    "connection.read",
+    "elasticsearch.documents.count",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Index and document constraints are revalidated before execution."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "normal"
 
 [[capabilities]]
 id = "mapping"
 description = "Read index mapping metadata without returning the raw mapping body."
 input_schema = "schemas/mapping-input.schema.json"
 output_schema = "schemas/mapping-output.schema.json"
-permissions = ["connection.read", "elasticsearch.mappings.get"]
+permissions = [
+    "connection.read",
+    "elasticsearch.mappings.get",
+]
 risk = "read_only"
 destructive = false
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = false
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Index and document constraints are revalidated before execution."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "normal"
 
 [[capabilities]]
 id = "bulk"
 description = "Execute a bounded Elasticsearch bulk request with item-level failure reporting."
 input_schema = "schemas/bulk-input.schema.json"
 output_schema = "schemas/bulk-output.schema.json"
-permissions = ["connection.write", "elasticsearch.documents.bulk"]
+permissions = [
+    "connection.write",
+    "elasticsearch.documents.bulk",
+]
 risk = "destructive"
 destructive = true
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = true
 default_timeout_ms = 30000
+
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Index scope and the exact bounded operation list require destructive approval."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/index"
+label = "Index"
+value_type = "resource_id"
+required = true
+constraint = "prefix"
+risk_emphasis = "destructive"
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/operations"
+label = "Bulk operations"
+value_type = "json"
+required = true
+constraint = "subset"
+risk_emphasis = "destructive"
 
 [[capabilities]]
 id = "raw_api"
 description = "Run a raw Elasticsearch API call; all raw API calls are destructive-gated."
 input_schema = "schemas/raw_api-input.schema.json"
 output_schema = "schemas/raw_api-output.schema.json"
-permissions = ["connection.write", "elasticsearch.raw_api"]
+permissions = [
+    "connection.write",
+    "elasticsearch.raw_api",
+]
 risk = "destructive"
 destructive = true
 streaming = false
+execution_mode = "stateless"
 connection_required = true
 required_secret_classes = []
 supports_dry_run = true
 default_timeout_ms = 30000
 
+[capabilities.authorization]
+declared = true
+interactive_execute = false
+session_purposes = []
+note = "Method and path prefix are enforced; raw calls remain separate from managed PIT, scroll, and bulk workflows."
+capability_wide_allowed = true
+
+[capabilities.authorization.approval_schema]
+version = 1
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/method"
+label = "HTTP method"
+value_type = "string"
+required = true
+constraint = "exact"
+risk_emphasis = "destructive"
+
+[[capabilities.authorization.approval_schema.fields]]
+path = "/path"
+label = "API path prefix"
+value_type = "path"
+required = true
+constraint = "prefix"
+risk_emphasis = "destructive"
+
 [ui]
 tui = false
+raw_input = false
 
 [requirements]
 voidb_core = ">=0.1.0"
-platforms = ["darwin", "linux", "windows"]
+platforms = [
+    "darwin",
+    "linux",
+    "windows",
+]

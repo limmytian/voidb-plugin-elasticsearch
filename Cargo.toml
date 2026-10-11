@@ -12,8 +12,8 @@ name = "voidb-plugin-elasticsearch"
 path = "src/main.rs"
 
 [dependencies]
-voidb-process-plugin-sdk = { git = "https://github.com/limmytian/voidb.git", tag = "v0.3.0" }
-voidb-core = { git = "https://github.com/limmytian/voidb.git", tag = "v0.3.0" }
+voidb-process-plugin-sdk = { git = "https://github.com/limmytian/voidb.git", rev = "0d565c4a7227f218c2b9c118aa2694d87243aa8f" }
+voidb-core = { git = "https://github.com/limmytian/voidb.git", rev = "0d565c4a7227f218c2b9c118aa2694d87243aa8f" }
 reqwest = { version = "0.12", features = ["json", "native-tls"] }
 anyhow = "1.0"
 serde = { version = "1.0", features = ["derive"] }
@@ -27,6 +27,7 @@ chrono = { version = "0.4", features = ["serde"] }
 rpassword = "7"
 
 [dev-dependencies]
+toml = "0.8"
 
 [[example]]
 name = "export_schemas"
