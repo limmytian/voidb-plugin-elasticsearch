@@ -1,6 +1,6 @@
 id = "elasticsearch"
 name = "Elasticsearch Search and Analytics Plugin"
-version = "0.3.3"
+version = "0.3.4"
 protocol_version = "1"
 description = "Elasticsearch cluster, index, and document capability plugin for VoidB."
 license = "Apache-2.0"
