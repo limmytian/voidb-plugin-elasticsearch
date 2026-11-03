@@ -6,6 +6,7 @@ mod cli_plugin;
 mod config;
 pub mod es_ops;
 pub mod service;
+mod tui;
 mod types;
 
 pub use agent_session::EsAgentSessionFactory;

@@ -1,0 +1,418 @@
+{
+  "profile_label": "fixture-elasticsearch-ops",
+  "server_label": "fixture-elasticsearch-local",
+  "connection_kind": "http",
+  "status": "fixture elasticsearch search space ready",
+  "target_error": "target error: cluster_block_exception FORBIDDEN/12/index read-only (triage lock active); allow delete (api)",
+  "error_docs": [
+    { "index": "logs-app-2026.11", "id": "log-locked-003" }
+  ],
+  "error_message": "target error: permission denied while deleting locked document (fixture)",
+  "indices": [
+    { "name": "logs-app-2026.11", "health": "green", "status": "open", "doc_count": 14203, "store_size": "128.4mb", "pri_shards": 1, "rep_shards": 1 },
+    { "name": "logs-app-2026.10", "health": "green", "status": "open", "doc_count": 13107, "store_size": "121.9mb", "pri_shards": 1, "rep_shards": 1 },
+    { "name": "orders-prod", "health": "yellow", "status": "open", "doc_count": 842, "store_size": "12.8mb", "pri_shards": 5, "rep_shards": 1 },
+    { "name": "users-profiles", "health": "green", "status": "open", "doc_count": 96, "store_size": "1.2mb", "pri_shards": 1, "rep_shards": 0 },
+    { "name": "metrics-empty", "health": "green", "status": "open", "doc_count": 0, "store_size": "225b", "pri_shards": 1, "rep_shards": 1 },
+    { "name": "events-broken", "health": "red", "status": "open", "doc_count": 0, "store_size": "0b", "pri_shards": 3, "rep_shards": 0 }
+  ],
+  "search_pages": [
+    {
+      "index": "logs-app-2026.11",
+      "from": 0,
+      "total": 14,
+      "hits": [
+        {
+          "id": "log-0001",
+          "index": "logs-app-2026.11",
+          "score": 1.0,
+          "source": {
+            "@timestamp": "2026-11-02T09:15:21.104Z",
+            "level": "ERROR",
+            "logger": "checkout.payment",
+            "message": "payment gateway timeout after 30s",
+            "http": {
+              "request": { "method": "POST" },
+              "response": { "status_code": 504 }
+            },
+            "trace": { "id": "4bf92f3577b34da6a3ce929d0e0e4736" },
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0002",
+          "index": "logs-app-2026.11",
+          "score": 0.9,
+          "source": {
+            "@timestamp": "2026-11-02T09:14:02.880Z",
+            "level": "WARN",
+            "logger": "search.latency",
+            "message": "query latency degraded above 900ms",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-locked-003",
+          "index": "logs-app-2026.11",
+          "score": 0.8,
+          "source": {
+            "@timestamp": "2026-11-02T09:12:45.010Z",
+            "level": "INFO",
+            "logger": "ops.lock",
+            "message": "triage lock active for this document",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0004",
+          "index": "logs-app-2026.11",
+          "score": 0.75,
+          "source": {
+            "@timestamp": "2026-11-02T09:10:11.400Z",
+            "level": "INFO",
+            "logger": "cache.warmup",
+            "message": "cache warmup completed for 42 shards",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0005",
+          "index": "logs-app-2026.11",
+          "score": 0.7,
+          "source": {
+            "@timestamp": "2026-11-02T09:08:59.220Z",
+            "level": "ERROR",
+            "logger": "ingest.pipeline",
+            "message": "pipeline processor failed for document batch",
+            "error": { "type": "gateway_timeout", "retryable": true },
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0006",
+          "index": "logs-app-2026.11",
+          "score": 0.65,
+          "source": {
+            "@timestamp": "2026-11-02T09:07:30.000Z",
+            "level": "WARN",
+            "logger": "queue.retry",
+            "message": "retry queue depth above threshold",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0007",
+          "index": "logs-app-2026.11",
+          "score": 0.6,
+          "source": {
+            "@timestamp": "2026-11-02T09:05:12.310Z",
+            "level": "INFO",
+            "logger": "session.refresh",
+            "message": "user session refreshed",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0008",
+          "index": "logs-app-2026.11",
+          "score": 0.55,
+          "source": {
+            "@timestamp": "2026-11-02T09:03:44.900Z",
+            "level": "DEBUG",
+            "logger": "tracing.coldpath",
+            "message": "cold path tracing enabled",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0009",
+          "index": "logs-app-2026.11",
+          "score": null,
+          "source": {
+            "@timestamp": "2026-11-02T09:01:08.500Z",
+            "level": "ERROR",
+            "logger": "db.connection",
+            "message": "database connection refused",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0010",
+          "index": "logs-app-2026.11",
+          "score": 0.45,
+          "source": {
+            "@timestamp": "2026-11-02T09:00:00.000Z",
+            "level": "INFO",
+            "logger": "reports.schedule",
+            "message": "scheduled report dispatched",
+            "event": { "kind": "event" }
+          }
+        }
+      ]
+    },
+    {
+      "index": "logs-app-2026.11",
+      "from": 10,
+      "total": 14,
+      "hits": [
+        {
+          "id": "log-0011",
+          "index": "logs-app-2026.11",
+          "score": 0.42,
+          "source": {
+            "@timestamp": "2026-11-02T08:58:20.100Z",
+            "level": "WARN",
+            "logger": "shard.rebalance",
+            "message": "shard rebalance throttled",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0012",
+          "index": "logs-app-2026.11",
+          "score": 0.40,
+          "source": {
+            "@timestamp": "2026-11-02T08:55:02.000Z",
+            "level": "INFO",
+            "logger": "index.rollover",
+            "message": "rollover check completed",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0013",
+          "index": "logs-app-2026.11",
+          "score": 0.38,
+          "source": {
+            "@timestamp": "2026-11-02T08:52:41.700Z",
+            "level": "INFO",
+            "logger": "ingest.geoip",
+            "message": "geoip database updated",
+            "event": { "kind": "event" }
+          }
+        },
+        {
+          "id": "log-0014",
+          "index": "logs-app-2026.11",
+          "score": 0.35,
+          "source": {
+            "@timestamp": "2026-11-02T08:50:15.300Z",
+            "level": "INFO",
+            "logger": "snapshot.daily",
+            "message": "daily snapshot registered",
+            "event": { "kind": "event" }
+          }
+        }
+      ]
+    },
+    {
+      "index": "orders-prod",
+      "from": 0,
+      "total": 3,
+      "hits": [
+        {
+          "id": "ord-10042",
+          "index": "orders-prod",
+          "score": 2.1,
+          "source": {
+            "order_id": "ORD-10042",
+            "status": "fulfilled",
+            "total_usd": 199.0,
+            "currency": "USD",
+            "line_items": [
+              { "sku": "WIDG-0042", "quantity": 1, "price_usd": 199.0 }
+            ],
+            "created_at": "2026-11-01T14:22:08Z"
+          }
+        },
+        {
+          "id": "ord-10043",
+          "index": "orders-prod",
+          "score": 1.8,
+          "source": {
+            "order_id": "ORD-10043",
+            "status": "pending",
+            "total_usd": 74.5,
+            "currency": "USD",
+            "line_items": [
+              { "sku": "WIDG-0100", "quantity": 2, "price_usd": 19.99 },
+              { "sku": "CABLE-USB4", "quantity": 1, "price_usd": 34.52 }
+            ],
+            "created_at": "2026-11-01T16:40:55Z"
+          }
+        },
+        {
+          "id": "ord-10044",
+          "index": "orders-prod",
+          "score": 1.2,
+          "source": {
+            "order_id": "ORD-10044",
+            "status": "refunded",
+            "total_usd": 0.0,
+            "currency": "USD",
+            "line_items": [],
+            "created_at": "2026-11-02T07:05:19Z"
+          }
+        }
+      ]
+    },
+    {
+      "index": "users-profiles",
+      "from": 0,
+      "total": 4,
+      "hits": [
+        {
+          "id": "usr-1001",
+          "index": "users-profiles",
+          "score": 1.0,
+          "source": {
+            "display_name": "operator-a",
+            "role": "triage",
+            "locale": "en-US",
+            "mfa": true
+          }
+        },
+        {
+          "id": "usr-1002",
+          "index": "users-profiles",
+          "score": 0.9,
+          "source": {
+            "display_name": "operator-b",
+            "role": "sre",
+            "locale": "en-GB",
+            "mfa": true
+          }
+        },
+        {
+          "id": "usr-1003",
+          "index": "users-profiles",
+          "score": 0.8,
+          "source": {
+            "display_name": "fixture-worker",
+            "role": "service",
+            "locale": null,
+            "mfa": false
+          }
+        },
+        {
+          "id": "usr-1004",
+          "index": "users-profiles",
+          "score": 0.7,
+          "source": {
+            "display_name": "auditor-c",
+            "role": "read_only",
+            "locale": "de-DE",
+            "mfa": true
+          }
+        }
+      ]
+    }
+  ],
+  "mappings": [
+    {
+      "index": "logs-app-2026.11",
+      "properties": [
+        "@timestamp",
+        "event.kind",
+        "http.request.method",
+        "http.response.status_code",
+        "level",
+        "logger",
+        "message",
+        "trace.id"
+      ],
+      "raw": {
+        "logs-app-2026.11": {
+          "mappings": {
+            "properties": {
+              "@timestamp": { "type": "date" },
+              "event": {
+                "properties": { "kind": { "type": "keyword" } }
+              },
+              "http": {
+                "properties": {
+                  "request": { "properties": { "method": { "type": "keyword" } } },
+                  "response": { "properties": { "status_code": { "type": "integer" } } }
+                }
+              },
+              "level": { "type": "keyword" },
+              "logger": { "type": "keyword" },
+              "message": { "type": "text" },
+              "trace": {
+                "properties": { "id": { "type": "keyword" } }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": "orders-prod",
+      "properties": [
+        "created_at",
+        "currency",
+        "line_items.price_usd",
+        "line_items.quantity",
+        "line_items.sku",
+        "order_id",
+        "status",
+        "total_usd"
+      ],
+      "raw": {
+        "orders-prod": {
+          "mappings": {
+            "properties": {
+              "created_at": { "type": "date" },
+              "currency": { "type": "keyword" },
+              "line_items": {
+                "properties": {
+                  "price_usd": { "type": "scaled_float", "scaling_factor": 100 },
+                  "quantity": { "type": "integer" },
+                  "sku": { "type": "keyword" }
+                }
+              },
+              "order_id": { "type": "keyword" },
+              "status": { "type": "keyword" },
+              "total_usd": { "type": "scaled_float", "scaling_factor": 100 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": "users-profiles",
+      "properties": ["display_name", "locale", "mfa", "role"],
+      "raw": {
+        "users-profiles": {
+          "mappings": {
+            "properties": {
+              "display_name": { "type": "keyword" },
+              "locale": { "type": "keyword" },
+              "mfa": { "type": "boolean" },
+              "role": { "type": "keyword" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": "metrics-empty",
+      "properties": [],
+      "raw": {
+        "metrics-empty": { "mappings": {} }
+      }
+    }
+  ],
+  "cluster_health": {
+    "cluster_name": "fixture-search-cluster",
+    "status": "green",
+    "node_count": 3,
+    "active_shards": 24,
+    "unassigned_shards": 0
+  },
+  "nodes": [
+    { "name": "node-es-01", "roles": ["cdhilmrstw"], "heap_percent": 41, "disk_used": "82.1gb", "cpu_percent": 12 },
+    { "name": "node-es-02", "roles": ["cdhilmrstw"], "heap_percent": 38, "disk_used": "80.4gb", "cpu_percent": 9 },
+    { "name": "node-es-03", "roles": ["mr"], "heap_percent": 22, "disk_used": "18.9gb", "cpu_percent": 4 }
+  ]
+}

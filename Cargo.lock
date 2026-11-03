@@ -3116,6 +3116,8 @@ dependencies = [
  "base64 0.22.1",
  "chrono",
  "clap",
+ "crossterm",
+ "ratatui",
  "reqwest",
  "rpassword",
  "serde",
