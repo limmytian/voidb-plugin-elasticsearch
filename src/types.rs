@@ -9,5 +9,4 @@ impl IndexHealth {
             Self::Red => "●",
         }
     }
-
 }
