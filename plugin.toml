@@ -523,7 +523,7 @@ constraint = "prefix"
 risk_emphasis = "destructive"
 
 [ui]
-tui = false
+tui = true
 raw_input = false
 
 [requirements]

@@ -3,14 +3,22 @@
 //! All operations go through `EsService::new_direct()` so that the same
 //! validated, path-sanitized code paths used by the TUI are exercised here.
 
+use std::fs;
+
 use async_trait::async_trait;
-use clap::{Arg, ArgMatches, Command};
+use chrono::Utc;
+use clap::{Arg, ArgAction, ArgMatches, Command};
 use voidb_core::VoidbError;
 use voidb_core::plugin::cli::{CliContext, CliPlugin};
+use voidb_core::{ConnectionProfileRef, TuiLaunchRequest, build_tui_launch_plan};
 
 use crate::config::EsConfig;
 use crate::service::EsService;
 use crate::service::types::IndexHealth;
+use crate::tui::{
+    EsTuiLaunch, EsTuiSource, build_elasticsearch_tui_evidence, run_es_tui,
+    write_elasticsearch_tui_preflight,
+};
 
 pub struct EsCliPlugin;
 
@@ -148,6 +156,59 @@ impl CliPlugin for EsCliPlugin {
                         .action(clap::ArgAction::SetTrue)
                         .help("Read connection configuration JSON from stdin"),
                 ),
+            Command::new("tui")
+                .about("Launch the standalone Elasticsearch search-triage TUI (pilot)")
+                .arg(
+                    Arg::new("profile")
+                        .long("profile")
+                        .value_name("PROFILE")
+                        .conflicts_with("connection")
+                        .help("Profile name, id:<id>, or name:<name>"),
+                )
+                .arg(
+                    Arg::new("connection")
+                        .short('c')
+                        .long("connection")
+                        .value_name("CONNECTION")
+                        .conflicts_with("profile")
+                        .help("Legacy connection name"),
+                )
+                .arg(
+                    Arg::new("fixture").long("fixture").value_name("PATH").help(
+                        "Load deterministic Elasticsearch TUI fixture JSON instead of opening a cluster",
+                    ),
+                )
+                .arg(
+                    Arg::new("purpose")
+                        .long("purpose")
+                        .value_name("PURPOSE")
+                        .default_value("operations")
+                        .help("Launch purpose, for example operations or triage"),
+                )
+                .arg(
+                    Arg::new("readonly")
+                        .long("readonly")
+                        .action(ArgAction::SetTrue)
+                        .help("Stage operation plans but block mutating service commands"),
+                )
+                .arg(
+                    Arg::new("no-restore")
+                        .long("no-restore")
+                        .action(ArgAction::SetTrue)
+                        .help("Start without restoring plugin-owned UI state"),
+                )
+                .arg(
+                    Arg::new("format")
+                        .long("format")
+                        .value_parser(["json"])
+                        .help("Emit secret-free preflight JSON and exit"),
+                )
+                .arg(
+                    Arg::new("evidence")
+                        .long("evidence")
+                        .value_name("PATH")
+                        .help("Write fixture-backed standalone Elasticsearch TUI evidence JSON and exit"),
+                ),
         ]
     }
 
@@ -167,12 +228,132 @@ impl CliPlugin for EsCliPlugin {
             "count" => self.handle_count(matches, ctx).await,
             "mapping" => self.handle_mapping(matches, ctx).await,
             "api" => self.handle_api(matches, ctx).await,
+            "tui" => self.handle_tui(matches, ctx).await,
             _ => Err(VoidbError::Plugin(format!("Unknown command: {}", command))),
         }
     }
 }
 
 impl EsCliPlugin {
+    fn parse_tui_launch(matches: &ArgMatches, ctx: &CliContext) -> Result<EsTuiLaunch, VoidbError> {
+        let fixture_path = matches.get_one::<String>("fixture").cloned();
+        let purpose = matches
+            .get_one::<String>("purpose")
+            .cloned()
+            .unwrap_or_else(|| "operations".to_string());
+        let readonly = matches.get_flag("readonly");
+        let restore = !matches.get_flag("no-restore");
+
+        if let Some(profile_ref) = matches.get_one::<String>("profile") {
+            let (profile, connection) =
+                ctx.resolve_profile_connection(profile_ref, Some("elasticsearch"))?;
+            let config: EsConfig = connection
+                .plugin_config
+                .as_ref()
+                .ok_or_else(|| VoidbError::Connection("Missing plugin_config".to_string()))
+                .and_then(|pc| {
+                    serde_json::from_value(pc.clone())
+                        .map_err(|e| VoidbError::Connection(format!("Invalid ES config: {}", e)))
+                })?;
+            let profile_arg = profile_ref_arg(profile_ref, &profile.id);
+            let request = TuiLaunchRequest::new("elasticsearch", profile_arg, purpose.clone())
+                .readonly(readonly)
+                .restore(restore)
+                .raw_input(false);
+            let launch_plan = build_tui_launch_plan(&profile, request, "voidb-cli", Utc::now())?;
+
+            return Ok(EsTuiLaunch {
+                profile_label: profile.name,
+                config: Some(config),
+                source: EsTuiSource::Profile,
+                fixture_path,
+                purpose,
+                readonly,
+                restore,
+                launch_plan: Some(launch_plan),
+            });
+        }
+
+        if let Some(conn_name) = matches.get_one::<String>("connection") {
+            let config = Self::parse_config(conn_name, ctx)?;
+            return Ok(EsTuiLaunch {
+                profile_label: conn_name.clone(),
+                config: Some(config),
+                source: EsTuiSource::Connection,
+                fixture_path,
+                purpose,
+                readonly,
+                restore,
+                launch_plan: None,
+            });
+        }
+
+        if fixture_path.is_some() {
+            return Ok(EsTuiLaunch {
+                profile_label: "fixture".to_string(),
+                config: None,
+                source: EsTuiSource::Fixture,
+                fixture_path,
+                purpose,
+                readonly,
+                restore,
+                launch_plan: None,
+            });
+        }
+
+        Err(VoidbError::Plugin(
+            "elasticsearch tui requires --profile, --connection, or --fixture".to_string(),
+        ))
+    }
+
+    async fn handle_tui(&self, matches: &ArgMatches, ctx: &CliContext) -> Result<(), VoidbError> {
+        let launch = Self::parse_tui_launch(matches, ctx)?;
+        if let Some(path) = matches.get_one::<String>("evidence") {
+            let evidence = build_elasticsearch_tui_evidence(&launch).map_err(|e| {
+                VoidbError::Plugin(format!("Elasticsearch TUI evidence failed: {}", e))
+            })?;
+            let rendered = serde_json::to_string_pretty(&evidence).map_err(|e| {
+                VoidbError::Plugin(format!(
+                    "Elasticsearch TUI evidence serialization failed: {}",
+                    e
+                ))
+            })?;
+            if let Some(parent) = std::path::Path::new(path).parent()
+                && !parent.as_os_str().is_empty()
+            {
+                fs::create_dir_all(parent).map_err(|e| {
+                    VoidbError::Plugin(format!(
+                        "Failed to create Elasticsearch TUI evidence directory '{}': {}",
+                        parent.display(),
+                        e
+                    ))
+                })?;
+            }
+            fs::write(path, rendered).map_err(|e| {
+                VoidbError::Plugin(format!(
+                    "Failed to write Elasticsearch TUI evidence '{}': {}",
+                    path, e
+                ))
+            })?;
+            println!("Wrote Elasticsearch TUI evidence to {path}");
+            return Ok(());
+        }
+
+        if matches
+            .get_one::<String>("format")
+            .is_some_and(|format| format == "json")
+        {
+            write_elasticsearch_tui_preflight(&launch).map_err(|e| {
+                VoidbError::Plugin(format!("Elasticsearch TUI preflight failed: {}", e))
+            })?;
+            return Ok(());
+        }
+
+        run_es_tui(launch)
+            .await
+            .map_err(|e| VoidbError::Plugin(format!("Elasticsearch TUI failed: {}", e)))
+    }
+
     async fn handle_test(&self, matches: &ArgMatches, ctx: &CliContext) -> Result<(), VoidbError> {
         let conn = if matches.get_flag("stdin-config") {
             use std::io::Read;
@@ -491,5 +672,20 @@ impl EsCliPlugin {
             serde_json::to_string_pretty(&result.body).unwrap_or_default()
         );
         Ok(())
+    }
+}
+
+fn profile_ref_arg(input: &str, profile_id: &str) -> ConnectionProfileRef {
+    if let Some(id) = input.strip_prefix("id:") {
+        ConnectionProfileRef::Id(id.to_string())
+    } else if let Some(name) = input
+        .strip_prefix("name:")
+        .or_else(|| input.strip_prefix("alias:"))
+    {
+        ConnectionProfileRef::Name(name.to_string())
+    } else if input == profile_id {
+        ConnectionProfileRef::Id(input.to_string())
+    } else {
+        ConnectionProfileRef::Name(input.to_string())
     }
 }
