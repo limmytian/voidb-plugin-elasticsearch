@@ -30,33 +30,33 @@ This plugin runs as an autonomous, out-of-process plugin adhering to VoidB's `pr
 
 ## Usage & Operational Modes
 
-When installed, `voidb-cli` automatically discovers this plugin and provides seamless transparent dispatch:
+When installed, `vb` automatically discovers this plugin and provides seamless transparent dispatch:
 
 ### 1. Human Operations (CLI)
 
 ```bash
 # Connectivity test
-voidb-cli elasticsearch test --profile local-es
+vb elasticsearch test --profile local-es
 
 # Cluster health and nodes
-voidb-cli elasticsearch health --profile local-es
-voidb-cli elasticsearch nodes --profile local-es
+vb elasticsearch health --profile local-es
+vb elasticsearch nodes --profile local-es
 
 # Indices and mappings
-voidb-cli elasticsearch indices --profile local-es
-voidb-cli elasticsearch mapping my-index --profile local-es
+vb elasticsearch indices --profile local-es
+vb elasticsearch mapping my-index --profile local-es
 
 # Search and documents
-voidb-cli elasticsearch search my-index --query '{"match_all":{}}' --size 10 --profile local-es
-voidb-cli elasticsearch get my-index doc-123 --profile local-es
-voidb-cli elasticsearch count my-index --query '{"match_all":{}}' --profile local-es
+vb elasticsearch search my-index --query '{"match_all":{}}' --size 10 --profile local-es
+vb elasticsearch get my-index doc-123 --profile local-es
+vb elasticsearch count my-index --query '{"match_all":{}}' --profile local-es
 ```
 
 ### 2. Machine Communication (AI Agents & JSON-RPC)
 
 ```bash
-# Run the stdio-jsonrpc server directly or via voidb-cli
-voidb-cli elasticsearch serve
+# Run the stdio-jsonrpc server directly or via vb
+vb elasticsearch serve
 # Or directly run the binary:
 ./bin/voidb-plugin-elasticsearch serve
 ```
@@ -75,8 +75,8 @@ cp -r plugin.toml bin schemas "$HOME/Library/Application Support/voidb/plugins/e
 Verify discovery via `voidb`:
 
 ```bash
-voidb-cli plugin list
-voidb-cli elasticsearch --help
+vb plugin list
+vb elasticsearch --help
 ```
 
 ### Development & Build
