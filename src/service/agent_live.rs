@@ -356,8 +356,22 @@ pub async fn execute_bulk(
     operations: &[EsBulkOperation],
 ) -> Result<EsBulkResult, EsLiveError> {
     http::sanitize_path_component(index).map_err(|_| EsLiveError::fatal("index_invalid"))?;
+    // Hard caps: the NDJSON payload is built in memory, so an unbounded
+    // operation count would let one invocation allocate without limit.
+    const MAX_BULK_OPERATIONS: usize = 500;
+    const MAX_BULK_NDJSON_BYTES: usize = 32 * 1024 * 1024;
+    if operations.len() > MAX_BULK_OPERATIONS {
+        return Err(EsLiveError::fatal(
+            "bulk_operation_limit: request exceeds the 500-operation limit",
+        ));
+    }
     let mut ndjson = String::new();
     for operation in operations {
+        if ndjson.len() > MAX_BULK_NDJSON_BYTES {
+            return Err(EsLiveError::fatal(
+                "bulk_payload_limit: bulk payload exceeds the 32 MiB in-memory limit",
+            ));
+        }
         match operation {
             EsBulkOperation::Index { id, document } => {
                 ndjson.push_str(&bulk_action("index", index, id.as_deref())?);
